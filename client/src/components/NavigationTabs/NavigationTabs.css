@@ -1,0 +1,19 @@
+.navigation-tabs {
+    display: flex;
+    justify-content: space-around;
+    background-color: #1e3d59;
+    padding: 10px 0;
+  }
+  
+  .navigation-tabs a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  
+  .navigation-tabs a.active {
+    font-weight: bold;
+    color: #FCA26B;
+  }

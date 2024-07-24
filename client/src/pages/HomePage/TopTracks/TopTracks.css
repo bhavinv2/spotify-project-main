@@ -1,0 +1,18 @@
+.top-tracks {
+    text-align: center;
+  }
+  
+  .top-tracks ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .top-tracks li {
+    margin: 5px 0;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+  }

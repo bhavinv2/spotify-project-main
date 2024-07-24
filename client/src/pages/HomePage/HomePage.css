@@ -1,0 +1,36 @@
+.homepage {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+  }
+  
+  .welcome-section {
+    background: url('https://i.pinimg.com/originals/4b/b2/f2/4bb2f20fa3d1e18eb5b19e34f2be4374.jpg') no-repeat center center;
+    background-size: cover;
+    color: #1e3d59;
+    padding: 50px 0;
+    font-size: 2em;
+  }
+  
+  .content-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .feature-box {
+    background: rgba(0, 0, 0, 0.5); /* Translucent background */
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  h2 {
+    color: #1e3d59; /* Darker blue color */
+    font-weight: bold;
+    font-size: 1.5em;
+  }
