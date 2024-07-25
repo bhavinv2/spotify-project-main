@@ -1,3 +1,4 @@
+from flask import Flask, request, url_for, session, redirect, jsonify
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
@@ -13,10 +14,11 @@ from collections import Counter
 app = Flask(__name__)
 
 app.config['SESSION_COOKIE_NAME'] = 'SpotifySession'
-app.secret_key = 'your_secret_key_here'  # Replace with a secure secret key
+app.secret_key = 'hsh73heuhe'  # Replace with a secure secret key
 TOKEN_INFO = 'token_info'
 
 load_dotenv()
+
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
@@ -134,6 +136,31 @@ def get_user_top_tracks(token):
         print(result.content)
         return None
 
+def view_top_tracks(token):
+    user_top_tracks = get_user_top_tracks(token)
+    if user_top_tracks is not None:
+        print("User's Top Tracks:")
+        for idx, track in enumerate(user_top_tracks):
+            print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
+    else:
+        print("Failed to retrieve user's top tracks.")
+
+
+@app.route('/api/top_tracks', methods=['GET'])
+def api_top_tracks():
+    try:
+        token_info = get_token()
+        token = token_info['access_token']
+        user_top_tracks = get_user_top_tracks(token)
+        if user_top_tracks:
+            tracks_data = [{'name': track['name'], 'artist': track['artists'][0]['name']} for track in user_top_tracks]
+            return jsonify(tracks_data)
+        else:
+            return jsonify({'error': 'No top tracks found'}), 404
+    except Exception as e:
+        print(f"Error fetching top tracks: {e}")
+        return jsonify({'error': 'Failed to fetch top tracks'}), 500
+
 
 def get_saved_tracks(token):
     url = "https://api.spotify.com/v1/me/tracks"
@@ -188,7 +215,7 @@ def get_playlist_tracks(token, playlist_id):
 
 
 def get_user_top_artists(token):
-    url = "https://api.spotify.com/v1/me/top/artists?limit=10"
+    url = "https://api.spotify.com/v1/me/top/artists"
     headers = get_auth_header(token)
     result = get(url, headers=headers)
     if result.status_code == 200:
@@ -198,6 +225,22 @@ def get_user_top_artists(token):
         print(f"Failed to get top artists: {result.status_code}")
         print(result.content)
         return None
+
+@app.route('/api/top_artists', methods=['GET'])
+def api_top_artists():
+    try:
+        token_info = get_token()
+        token = token_info['access_token']
+        top_artists = get_user_top_artists(token)
+        if top_artists:
+            artists_data = [{'name': artist['name']} for artist in top_artists]
+            return jsonify(artists_data)
+        else:
+            return jsonify({'error': 'No top artists found'}), 404
+    except Exception as e:
+        print(f"Error fetching top artists: {e}")
+        return jsonify({'error': 'Failed to fetch top artists'}), 500
+
 
 
 def add_song_to_playlist(token, playlist_id, track_uri):
@@ -260,14 +303,7 @@ def view_saved_tracks(token):
         print("No liked tracks found.")
 
 
-def view_top_tracks(token):
-    user_top_tracks = get_user_top_tracks(token)
-    if user_top_tracks is not None:
-        print("User's Top Tracks:")
-        for idx, track in enumerate(user_top_tracks):
-            print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
-    else:
-        print("Failed to retrieve user's top tracks.")
+
 
 
 def view_followed_artists(token):
@@ -323,6 +359,22 @@ def view_top_genres(token):
     else:
         print("No top genres found.")
 
+@app.route('/api/top_genres', methods=['GET'])
+def api_top_genres():
+    try:
+        token_info = get_token()
+        token = token_info['access_token']
+        top_genres = get_top_genres(token)
+        if top_genres:
+            genres_data = [{'genre': genre, 'count': count} for genre, count in top_genres]
+            return jsonify(genres_data)
+        else:
+            return jsonify({'error': 'No top genres found'}), 404
+    except Exception as e:
+        print(f"Error fetching top genres: {e}")
+        return jsonify({'error': 'Failed to fetch top genres'}), 500
+
+
 
 def get_recommendations(token, seed_artists=None, seed_genres=None, seed_tracks=None):
     url = "https://api.spotify.com/v1/recommendations"
@@ -359,6 +411,32 @@ def view_recommendations(token):
             print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
     else:
         print("No recommendations found.")
+
+
+@app.route('/api/recommendations', methods=['GET'])
+def api_recommendations():
+    try:
+        token_info = get_token()
+        token = token_info['access_token']
+
+        # Get top tracks and artists for seeding recommendations
+        top_tracks = get_user_top_tracks(token)
+        top_artists = get_user_top_artists(token)
+
+        # Prepare seed data
+        seed_tracks = [track['id'] for track in top_tracks[:5]] if top_tracks else []
+        seed_artists = [artist['id'] for artist in top_artists[:5]] if top_artists else []
+
+        recommendations = get_recommendations(token, seed_artists=seed_artists, seed_tracks=seed_tracks)
+        if recommendations:
+            recommendations_data = [{'name': track['name'], 'artist': track['artists'][0]['name']} for track in
+                                    recommendations]
+            return jsonify(recommendations_data)
+        else:
+            return jsonify({'error': 'No recommendations found'}), 404
+    except Exception as e:
+        print(f"Error fetching recommendations: {e}")
+        return jsonify({'error': 'Failed to fetch recommendations'}), 500
 
 
 def main_menu(token):
