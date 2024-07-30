@@ -3,29 +3,52 @@ import './TopTracks.css';
 
 const TopTracks = () => {
   const [tracks, setTracks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Placeholder for API call to get top tracks
-    setTracks([
-      'Track 1',
-      'Track 2',
-      'Track 3',
-      'Track 4',
-      'Track 5',
-      'Track 6',
-      'Track 7',
-      'Track 8',
-      'Track 9',
-      'Track 10',
-    ]);
+    const fetchTopTracks = async () => {
+      const token = localStorage.getItem('spotifyAuthToken');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:5000/api/top_tracks', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setTracks(data);
+          } else {
+            const errorText = await response.text();
+            console.error('Failed to fetch top tracks:', response.statusText, errorText);
+            setError(`Failed to fetch top tracks: ${response.statusText}. ${errorText}`);
+          }
+        } catch (error) {
+          console.error('Error fetching top tracks:', error);
+          setError(`Error fetching top tracks: ${error.message}`);
+        }
+      } else {
+        setError('No token found.');
+      }
+      setLoading(false);
+    };
+
+    fetchTopTracks();
   }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="top-tracks">
       <h2>Top Tracks</h2>
       <ul>
         {tracks.map((track, index) => (
-          <li key={index}>{track}</li>
+          <li key={index}>{track.name} by {track.artist}</li>
         ))}
       </ul>
     </div>

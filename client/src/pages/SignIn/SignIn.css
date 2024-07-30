@@ -1,0 +1,28 @@
+.signin-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #1e3d59;
+    color: #FCA26B;
+  }
+
+  .signin-page h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  .signin-page button {
+    background-color: #FCA26B;
+    color: #1e3d59;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .signin-page button:hover {
+    background-color: #f39251;
+  }

@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Chatbot.css';
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [accessToken, setAccessToken] = useState('');
 
-  const handleSend = () => {
+  useEffect(() => {
+    const token = localStorage.getItem('spotifyAuthToken');
+    if (token) {
+      setAccessToken(token);
+    }
+  }, []);
+
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages([...messages, { text: input, user: true }]);
+      const newMessages = [...messages, { text: input, user: true }];
+      setMessages(newMessages);
       setInput('');
-      // Placeholder for sending input to the backend and getting a response
-      setMessages([...messages, { text: input, user: true }, { text: 'This is a response', user: false }]);
+
+      try {
+        const response = await fetch('http://localhost:5000/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({ query: input }),
+        });
+
+        const data = await response.json();
+        setMessages([...newMessages, { text: data.response, user: false }]);
+      } catch (error) {
+        console.error('Error fetching chatbot response:', error);
+        setMessages([...newMessages, { text: 'Sorry, something went wrong.', user: false }]);
+      }
     }
   };
 
